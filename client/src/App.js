@@ -22,6 +22,7 @@ class App extends Component {
     contract: null,
     ipfsHash: null,
     buffer: "",
+    links: [],
   };
 
   componentDidMount = async () => {
@@ -56,7 +57,7 @@ class App extends Component {
     const { accounts, contract } = this.state;
 
     // Stores a given value, 5 by default.
-    await contract.methods.setVal(5000).send({ from: accounts[0] });
+    await contract.methods.set(5000).send({ from: accounts[0] });
 
     // Get the value from the contract to prove it worked.
     const response = await contract.methods.get().call();
@@ -96,14 +97,21 @@ class App extends Component {
         // }
         console.log("result cid string", result.cid.toString());
         contract.methods
-          .setfile(result.cid.toString())
+          .addfile(result.cid.toString())
           .send({ from: accounts[0] })
           .then(async (r) => {
             this.setState({ ipfsHash: result.cid.toString() });
-            const response = await contract.methods.getfile().call();
+            const filelink = await contract.methods.getfile(key).call();
+            this.setState((state) => ({
+              links: [
+                ...state.links,
+                "https://gateway.ipfs.io/ipfs/" + filelink,
+              ],
+            }));
+            // const response = await contract.methods.getfile().call();
             console.log(
               "here is your link: ",
-              "https://gateway.ipfs.io/ipfs/" + response
+              "https://gateway.ipfs.io/ipfs/" + filelink
             );
           })
           .catch((error) => {
@@ -119,7 +127,7 @@ class App extends Component {
     }
     return (
       <div className="App">
-        <h1>Good to Go!</h1>
+        {/* <h1>Good to Go!</h1>
         <p>Your Truffle Box is installed and ready.</p>
         <h2>Smart Contract Example</h2>
         <p>
@@ -129,7 +137,8 @@ class App extends Component {
         <p>
           Try changing the value stored on <strong>line 40</strong> of App.js.
         </p>
-        <div>The stored value is: {this.state.storageValue}</div>
+        <div>The stored value is: {this.state.storageValue}</div> */}
+        <h2>Upload files Below: </h2>
         <form onSubmit={this.onSubmit}>
           <input
             type="file"
@@ -141,6 +150,20 @@ class App extends Component {
           <br />
           <input type="submit" value="Submit File" />
         </form>
+        <h4>Links are here:</h4>
+        <div>
+          {Array.isArray(this.state.links) && this.state.links.length
+            ? this.state.links.map((link) => {
+                return (
+                  <li>
+                    <a href={link} key={link}>
+                      {link}
+                    </a>
+                  </li>
+                );
+              })
+            : "no files are there"}
+        </div>
       </div>
     );
   }

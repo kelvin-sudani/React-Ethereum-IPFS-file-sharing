@@ -3,9 +3,12 @@ pragma solidity >=0.4.21 <0.7.0;
 
 contract SimpleStorage {
     uint256 storedData;
-    string file;
 
-    function setVal(uint256 x) public {
+    struct file {
+        string hash;
+    }
+
+    function set(uint256 x) public {
         storedData = x;
     }
 
@@ -13,12 +16,18 @@ contract SimpleStorage {
         return storedData;
     }
 
-    function setfile(string memory f) public returns (string memory) {
-        file = f;
-        return f;
+    mapping(address => file[]) files;
+
+    function addfile(string memory _hash) public {
+        files[msg.sender].push(file({hash: _hash}));
     }
 
-    function getfile() public view returns (string memory) {
-        return file;
+    function getfile(uint256 _index) public view returns (string memory) {
+        file memory file_instance = files[msg.sender][_index];
+        return (file_instance.hash);
+    }
+
+    function getLength() public view returns (uint256) {
+        return files[msg.sender].length;
     }
 }
