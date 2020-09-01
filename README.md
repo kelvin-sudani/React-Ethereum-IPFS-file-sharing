@@ -1,4 +1,7 @@
 # truffle-react-box
+This is an Ethereum Blockchain Project with front end in React JS.
+
+The project is about uploading the files to IPFS and saving the returned hash to ethereum blockchain.
 
 IPFS file upload with infura
 
@@ -6,3 +9,5 @@ IPFS file upload with infura
 - add and get methods from ipfs
 
 ## TO-DO
+- More refactoring
+- trying something other than image files
