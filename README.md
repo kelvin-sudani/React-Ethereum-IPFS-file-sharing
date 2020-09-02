@@ -9,5 +9,4 @@ IPFS file upload with infura
 - add and get methods from ipfs
 
 ## TO-DO
-- More refactoring
-- trying something other than image files
+-Add feature: Multi file upload support
