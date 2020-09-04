@@ -17,6 +17,7 @@ const ipfs = ipfsClient({
 
 class App extends Component {
   state = {
+    key: "",
     file: null,
     storageValue: 0,
     web3: null,
@@ -80,9 +81,14 @@ class App extends Component {
     // console.log("return_hash : ", return_hash);
   };
 
-  captureFile = (event) => {
+  handleKeyChange = (event) => {
     event.preventDefault();
-    console.log("event.target.files are here : ", event.target.files);
+    // console.log("event.target is  : ", event.target.name, event.target.value);
+    this.setState({ [event.target.name]: event.target.value });
+  };
+  handleFileChange = (event) => {
+    event.preventDefault();
+    // console.log("event.target.files are here : ", event.target.files);
     this.setState({ file: event.target.files });
     this.setState({ links: "", buffer: "", ipfsHash: null });
   };
@@ -90,39 +96,47 @@ class App extends Component {
   onSubmit = async (event) => {
     event.preventDefault();
     const { accounts, contract } = this.state;
-    console.log("Submitting file to ipfs... files are:", this.state.file);
-    const file = this.state.file;
+    // console.log("Submitting file to ipfs... files are:", this.state.file);
+    // console.log("Submitting key value of: ", this.state.key);
+    const files = this.state.file;
+    for (const [key, value] of Object.entries(files)) {
+      // console.log(`${key}: ${value}`);
+      const file = value;
+      // console.log("each file", file);
+      //console.log("file got from this.state.file", file);
+      const output = await ipfs.add(file);
+      const hash = output.cid.toString();
+      // console.log(
+      //   "Ipfs add call output link",
+      //   "https://gateway.ipfs.io/ipfs/" + hash
+      // );
+      this.setState({ ipfsHash: hash });
+      // .then((result) => {
+      //   console.log("Ipfs add call output: result", result);
 
-    console.log("file got from this.state.file", file);
-    const output = await ipfs.add(file);
-    const hash = output.cid.toString();
-    console.log(
-      "Ipfs add call output link",
-      "https://gateway.ipfs.io/ipfs/" + hash
-    );
-    this.setState({ ipfsHash: hash });
-    // .then((result) => {
-    //   console.log("Ipfs add call output: result", result);
+      // console.log("result cid string", result.cid.toString());
+      // console.log("hash value being sent to addfile method : ", hash);
+      // console.log("ipfsHash state value : ", this.state.ipfsHash);
+      const add_result = await contract.methods
+        .addfile(this.state.key, hash)
+        .send({ from: accounts[0] });
+      // console.log("add result: ", add_result);
+      const filelink = await contract.methods
+        .getlastfile(this.state.key, 1)
+        .call();
+      //   .then(async (r) => {
+      //
+      // console.log("returned hash from getfile: ", hash);
+      this.setState((state) => ({
+        links: [...state.links, "https://gateway.ipfs.io/ipfs/" + filelink],
+      }));
 
-    // console.log("result cid string", result.cid.toString());
-    console.log("hash value being sent to addfile method : ", hash);
-    console.log("ipfsHash state value : ", this.state.ipfsHash);
-    const add_result = await contract.methods
-      .addfile(hash)
-      .send({ from: accounts[0] });
-    console.log("add result: ", add_result);
-    const filelink = await contract.methods.getfile().call();
-    //   .then(async (r) => {
-    //
-    console.log("get result: ", filelink);
-    this.setState({
-      links: "https://gateway.ipfs.io/ipfs/" + filelink,
-    });
-    //     // const response = await contract.methods.getfile().call();
-    console.log(
-      "here is your link: ",
-      "https://gateway.ipfs.io/ipfs/" + filelink
-    );
+      //     // const response = await contract.methods.getfile().call();
+      // console.log(
+      //   "here is your link: ",
+      //   "https://gateway.ipfs.io/ipfs/" + filelink
+      // );
+    }
     // })
     // .catch((error) => {
     //   console.error("error", error);
@@ -162,7 +176,7 @@ class App extends Component {
             type="file"
             name="input-file"
             id="input-file"
-            onChange={this.captureFile}
+            onChange={this.handleChange}
             multiple
           /> */}
           {/* <div className="file is-boxed is-centered">
@@ -171,7 +185,7 @@ class App extends Component {
                 className="file-input"
                 type="file"
                 name="file"
-                onChange={this.captureFile}
+                onChange={this.handleChange}
                 multiple
               />
               <span className="file-cta">
@@ -188,9 +202,11 @@ class App extends Component {
                 <input
                   className="file-input"
                   type="file"
-                  name="resume"
-                  onChange={this.captureFile}
+                  name="file"
+                  onChange={this.handleFileChange}
+                  multiple
                 />
+
                 <span className="file-cta">
                   <span className="file-icon">
                     <i className="fas fa-upload" />
@@ -200,7 +216,22 @@ class App extends Component {
               </label>
             </div>
           </div>
-          <br />
+          <div className="field">
+            <label className="label has-text-white ">
+              Enter Public Key of the Receiver:
+            </label>
+            <div className="control ">
+              <input
+                className="input is-primary"
+                type="text"
+                name="key"
+                style={{ width: "33%" }}
+                value={this.state.key}
+                onChange={this.handleKeyChange}
+              />
+            </div>
+          </div>
+
           <div className="buttons is-centered">
             <button className="button is-link">Submit</button>
           </div>
@@ -209,7 +240,7 @@ class App extends Component {
           <div className="container">
             <h3 className="subtitle is-3 has-text-primary">Links are here:</h3>
             <div>
-              {this.state.links.length ? (
+              {/* {this.state.links.length ? (
                 <ul key={this.state.links}>
                   <a
                     className="has-text-white"
@@ -219,6 +250,22 @@ class App extends Component {
                     {this.state.links}
                   </a>
                 </ul>
+              ) : (
+                <h3 className="subtitle is-3 has-text-white">
+                  {" "}
+                  no files uploaded
+                </h3>
+              )} */}
+              {Array.isArray(this.state.links) && this.state.links.length ? (
+                this.state.links.map((link) => {
+                  return (
+                    <li>
+                      <a className="has-text-white" href={link} key={link}>
+                        {link}
+                      </a>
+                    </li>
+                  );
+                })
               ) : (
                 <h3 className="subtitle is-3 has-text-white">
                   {" "}
