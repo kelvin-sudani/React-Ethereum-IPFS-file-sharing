@@ -122,7 +122,7 @@ class App extends Component {
         .send({ from: accounts[0] });
       // console.log("add result: ", add_result);
       const filelink = await contract.methods
-        .getlastfile(this.state.key, 1)
+        .getlastfile(this.state.key)
         .call();
       //   .then(async (r) => {
       //
