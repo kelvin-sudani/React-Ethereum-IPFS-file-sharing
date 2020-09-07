@@ -238,7 +238,7 @@ class App extends Component {
 
           <div className="buttons is-centered">
             {this.state.loadingFlag ? (
-              <button class="button is-success is-loading">Loading</button>
+              <button className="button is-success is-loading">Loading</button>
             ) : (
               <button className="button is-success">{this.state.button}</button>
             )}
