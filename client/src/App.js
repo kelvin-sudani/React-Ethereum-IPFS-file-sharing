@@ -26,6 +26,8 @@ class App extends Component {
     ipfsHash: null,
     buffer: "",
     links: "",
+    button: "Submit",
+    loadingFlag: false,
   };
 
   componentDidMount = async () => {
@@ -95,6 +97,7 @@ class App extends Component {
 
   onSubmit = async (event) => {
     event.preventDefault();
+    this.setState({ loadingFlag: true });
     const { accounts, contract } = this.state;
     // console.log("Submitting file to ipfs... files are:", this.state.file);
     // console.log("Submitting key value of: ", this.state.key);
@@ -141,6 +144,7 @@ class App extends Component {
     // .catch((error) => {
     //   console.error("error", error);
     // });
+    this.setState({ loadingFlag: false });
   };
 
   render() {
@@ -233,7 +237,11 @@ class App extends Component {
           </div>
 
           <div className="buttons is-centered">
-            <button className="button is-link">Submit</button>
+            {this.state.loadingFlag ? (
+              <button class="button is-success is-loading">Loading</button>
+            ) : (
+              <button className="button is-success">{this.state.button}</button>
+            )}
           </div>
         </form>
         <section className="section">
