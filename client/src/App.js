@@ -168,7 +168,7 @@ class App extends Component {
         </div> */}
         <nav className="level">
           <p className="level-item has-text-centered">
-            <h1 className="title is-1 has-text-primary">
+            <h1 className="title is-1 has-text-warning main-heading">
               Ethereum Based File Sharing
             </h1>
           </p>
@@ -201,7 +201,7 @@ class App extends Component {
             </label>
           </div> */}
           <div className="field">
-            <div className="file is-centered is-boxed is-success">
+            <div className="file is-centered is-boxed is-warning">
               <label className="file-label">
                 <input
                   className="file-input"
@@ -226,7 +226,7 @@ class App extends Component {
             </label>
             <div className="control ">
               <input
-                className="input is-primary"
+                className="input is-warning"
                 type="text"
                 name="key"
                 style={{ width: "33%" }}
@@ -238,15 +238,15 @@ class App extends Component {
 
           <div className="buttons is-centered">
             {this.state.loadingFlag ? (
-              <button className="button is-success is-loading">Loading</button>
+              <button class="button is-success is-loading">Loading</button>
             ) : (
-              <button className="button is-success">{this.state.button}</button>
+              <button className="button is-warning">{this.state.button}</button>
             )}
           </div>
         </form>
         <section className="section">
           <div className="container">
-            <h3 className="subtitle is-3 has-text-primary">Links are here:</h3>
+            <h3 className="subtitle is-3 has-text-warning">Links are here:</h3>
             <div>
               {/* {this.state.links.length ? (
                 <ul key={this.state.links}>
